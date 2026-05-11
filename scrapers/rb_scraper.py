@@ -9,6 +9,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from db_writer import save_upcoming_auctions
+
 
 OUTPUT_PATH = "/content/drive/MyDrive/Colab Notebooks/rb_auctions.csv"
 DEFAULT_BASE_URL = "https://www.rbauction.com/cp/tandem-axle-sleeper-truck-tractor"
@@ -213,6 +215,7 @@ def main():
 
     df_rb.to_csv(OUTPUT_PATH, index=False)
     print(f"Data saved to {OUTPUT_PATH}")
+    save_upcoming_auctions(df_rb.to_dict(orient="records"))
 
 
 if __name__ == "__main__":

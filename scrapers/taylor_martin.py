@@ -9,6 +9,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from db_writer import save_upcoming_auctions
+
 
 OUTPUT_PATH = "/content/drive/MyDrive/Colab Notebooks/taylor_martin_trucks.csv"
 DEFAULT_BASE_URL = "https://www.taylorandmartin.com"
@@ -227,6 +229,7 @@ def main():
     df = preprocess_df(df)
     df.to_csv(OUTPUT_PATH, index=False)
     print(f"Data saved to CSV: {OUTPUT_PATH}")
+    save_upcoming_auctions(df.to_dict(orient="records"))
 
 
 if __name__ == "__main__":
