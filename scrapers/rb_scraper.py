@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from db_writer import save_upcoming_auctions
 
 
-OUTPUT_PATH = "/content/drive/MyDrive/Colab Notebooks/rb_auctions.csv"
+OUTPUT_PATH = str(Path(__file__).resolve().parent / "output" / "rb_auctions.csv")
 DEFAULT_BASE_URL = "https://www.rbauction.com/cp/tandem-axle-sleeper-truck-tractor"
 DEFAULT_PARAMS = {
     "rbaLocationLevelOne": "USA",
@@ -213,7 +213,9 @@ def main():
     df_rb = df_rb.sort_values(by=["Date", "Location", "Lot"], ascending=[True, True, True])
     df_rb = df_rb.reset_index(drop=True)
 
-    df_rb.to_csv(OUTPUT_PATH, index=False)
+    output_file = Path(OUTPUT_PATH)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df_rb.to_csv(output_file, index=False)
     print(f"Data saved to {OUTPUT_PATH}")
     save_upcoming_auctions(df_rb.to_dict(orient="records"))
 

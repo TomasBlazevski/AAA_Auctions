@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from db_writer import save_upcoming_auctions
 
 
-OUTPUT_PATH = "/content/drive/MyDrive/Colab Notebooks/taylor_martin_trucks.csv"
+OUTPUT_PATH = str(Path(__file__).resolve().parent / "output" / "taylor_martin_trucks.csv")
 DEFAULT_BASE_URL = "https://www.taylorandmartin.com"
 DEFAULT_PATH = "/live-auctions"
 DEFAULT_PARAMS = {
@@ -227,7 +227,9 @@ def main():
 
     df = pd.DataFrame(all_data)
     df = preprocess_df(df)
-    df.to_csv(OUTPUT_PATH, index=False)
+    output_file = Path(OUTPUT_PATH)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
     print(f"Data saved to CSV: {OUTPUT_PATH}")
     save_upcoming_auctions(df.to_dict(orient="records"))
 
