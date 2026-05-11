@@ -56,6 +56,66 @@ SET
     "details" = EXCLUDED."details";
 """
 
+UPDATE_BY_URL_SQL = """
+UPDATE upcoming_auctions
+SET
+    "name_of_auction" = %s,
+    "location" = %s,
+    "date_of_a" = %s,
+    "time_of_a" = %s,
+    "lot" = %s,
+    "vin" = %s,
+    "year" = %s,
+    "make" = %s,
+    "model" = %s,
+    "engine" = %s,
+    "hp" = %s,
+    "transmission" = %s,
+    "ratio" = %s,
+    "mileage" = %s,
+    "notes" = %s,
+    "repaircosts" = %s,
+    "transport_costs" = %s,
+    "target_price" = %s,
+    "max_bid" = %s,
+    "sold_for" = %s,
+    "details" = %s
+WHERE "url" = %s;
+"""
+
+INSERT_SINGLE_SQL = """
+INSERT INTO upcoming_auctions (
+    "name_of_auction",
+    "location",
+    "date_of_a",
+    "time_of_a",
+    "lot",
+    "vin",
+    "year",
+    "make",
+    "model",
+    "engine",
+    "hp",
+    "transmission",
+    "ratio",
+    "mileage",
+    "notes",
+    "repaircosts",
+    "transport_costs",
+    "target_price",
+    "max_bid",
+    "sold_for",
+    "url",
+    "details"
+) VALUES (
+    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+);
+"""
+
+VIN_IDX = 5
+URL_IDX = 20
+
 
 def _to_int(value):
     if value is None:
@@ -87,12 +147,10 @@ def _to_date(value):
     text = str(value).strip()
     if not text:
         return None
-    for fmt in ("%m/%d/%Y", "%Y-%m-%d"):
-        try:
-            return datetime.strptime(text, fmt).date()
-        except ValueError:
-            continue
-    return None
+    try:
+        return datetime.strptime(text, "%m/%d/%Y").date()
+    except ValueError:
+        return None
 
 
 def _to_time(value):
@@ -169,6 +227,8 @@ def save_upcoming_auctions(rows):
         raise RuntimeError("DB_USER and DB_PASSWORD must be set in environment variables.")
 
     values = [_normalize_row(row) for row in rows]
+    values_with_vin = [value for value in values if value[VIN_IDX] is not None]
+    values_without_vin = [value for value in values if value[VIN_IDX] is None]
 
     with psycopg2.connect(
         host=db_host,
@@ -178,6 +238,40 @@ def save_upcoming_auctions(rows):
         dbname=db_name,
     ) as conn:
         with conn.cursor() as cur:
-            execute_values(cur, INSERT_SQL, values, page_size=200)
+            if values_with_vin:
+                execute_values(cur, INSERT_SQL, values_with_vin, page_size=200)
+
+            for value in values_without_vin:
+                url = value[URL_IDX]
+                if url:
+                    update_params = (
+                        value[0],
+                        value[1],
+                        value[2],
+                        value[3],
+                        value[4],
+                        value[5],
+                        value[6],
+                        value[7],
+                        value[8],
+                        value[9],
+                        value[10],
+                        value[11],
+                        value[12],
+                        value[13],
+                        value[14],
+                        value[15],
+                        value[16],
+                        value[17],
+                        value[18],
+                        value[19],
+                        value[21],
+                        url,
+                    )
+                    cur.execute(UPDATE_BY_URL_SQL, update_params)
+                    if cur.rowcount > 0:
+                        continue
+
+                cur.execute(INSERT_SINGLE_SQL, value)
         conn.commit()
     print(f"Saved {len(values)} row(s) to upcoming_auctions.")
