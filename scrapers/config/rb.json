@@ -1,0 +1,10 @@
+{
+  "base_url": "https://www.rbauction.com/cp/tandem-axle-sleeper-truck-tractor",
+  "params": {
+    "rbaLocationLevelOne": "USA",
+    "manufactureYearRange": "2022-2027",
+    "manufacturers": "Freightliner,Volvo",
+    "usageMilesRange": "1000-500000",
+    "size": "60"
+  }
+}

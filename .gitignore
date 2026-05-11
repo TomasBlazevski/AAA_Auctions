@@ -1,0 +1,24 @@
+# Security
+.env
+
+# Database Data
+# This prevents your local database rows (GBs of data) from being pushed to Git
+postgres_data/
+
+# Python / Scrapers
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS related
+.DS_Store
+Thumbs.db

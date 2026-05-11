@@ -1,0 +1,12 @@
+{
+  "base_url": "https://www.taylorandmartin.com",
+  "path": "/live-auctions",
+  "params": {
+    "types": ["Truck/Tractor"],
+    "subtypes": ["Sleeper"],
+    "years": ["2026", "2025", "2024", "2023", "2022", "2027"],
+    "makes": ["FREIGHTLINER", "VOLVO"],
+    "engineMakes": ["Cummins", "Detroit", "Volvo"],
+    "ItemCount": "12"
+  }
+}
