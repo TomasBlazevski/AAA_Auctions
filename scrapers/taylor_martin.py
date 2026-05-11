@@ -76,7 +76,8 @@ def collect_links():
         page_params["ItemCount"] = item_count
         query = urlencode(page_params, doseq=True)
         url = f"{baseurl}/{base_path}?{query}"
-        response = requests.get(url)
+        response = requests.get(url, timeout=20)
+        response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
 
         link_div = soup.find("div", attrs={"class": "equipment-list view-grid"})
@@ -193,6 +194,14 @@ def truck_data(url):
 
 
 def preprocess_df(df):
+    if df.empty:
+        return df
+
+    required_columns = ["Date", "Location", "Lot", "Mileage", "Transmission"]
+    for column in required_columns:
+        if column not in df.columns:
+            df[column] = None
+
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
     df["Date"] = df["Date"].dt.strftime("%m/%d/%Y")
 
@@ -226,6 +235,10 @@ def main():
         time.sleep(1)
 
     df = pd.DataFrame(all_data)
+    if df.empty:
+        print("No Taylor & Martin records scraped.")
+        return
+
     df = preprocess_df(df)
     output_file = Path(OUTPUT_PATH)
     output_file.parent.mkdir(parents=True, exist_ok=True)
