@@ -76,7 +76,7 @@ def collect_links():
         page_params["ItemCount"] = item_count
         query = urlencode(page_params, doseq=True)
         url = f"{baseurl}/{base_path}?{query}"
-        response = requests.get(url, timeout=20)
+        response = requests.get(url, timeout=40)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
 
