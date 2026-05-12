@@ -22,3 +22,4 @@ env/
 # OS related
 .DS_Store
 Thumbs.db
+scrapers/output/
