@@ -4,7 +4,24 @@ from decimal import Decimal, InvalidOperation
 
 import psycopg2
 from psycopg2.extras import Json, execute_values
+from dotenv import load_dotenv
+load_dotenv()
+from pathlib import Path  # For potential future use in file-based configs or logs
+from decimal import Decimal, InvalidOperation
 
+
+# Agnostic loading: 
+# This looks for a .env file in the folder where you RUN the command.
+load_dotenv()
+
+# --- DEBUG TEST ---
+# os.getenv() will now check your system variables OR the .env file
+db_user = os.getenv('DB_USER')
+
+if db_user:
+    print(f"✅ Success: Connected as {db_user}")
+else:
+    print("❌ Warning: DB_USER not found in environment.")
 
 INSERT_SQL = """
 INSERT INTO upcoming_auctions (
@@ -181,10 +198,8 @@ def _normalize_row(row):
     source = row.get("URL") or row.get("url")
 
     repair_cost = _to_decimal(row.get("RepairCosts"))
-    notes = row.get("Notes")
-    if repair_cost is None and row.get("RepairCosts"):
-        extra_note = f"RepairCosts raw value: {row.get('RepairCosts')}"
-        notes = f"{notes} | {extra_note}" if notes else extra_note
+    notes = row.get("Notes") or ""
+    
 
     return (
         row.get("Name_Of_Auction"),
