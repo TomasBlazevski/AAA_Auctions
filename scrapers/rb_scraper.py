@@ -119,6 +119,7 @@ def truck_data_v2(url, headers):
         model = item.get("modelLocalized")
         inspection_status = item.get("inspectionStatus")
         miles = item.get("usageMiles")
+        
 
         loc_city = item.get("locationCity")
         loc_state = item.get("locationState")
@@ -180,8 +181,8 @@ def truck_data_v2(url, headers):
         "Transmission": transmission,
         "Ratio": "",
         "Mileage": miles,
-        "Notes": None,
-        "RepairCosts": inspection_status,
+        "Notes": inspection_status,
+        "RepairCosts": None,
         "Transport_Costs": "",
         "Target_Price": "",
         "Max_Bid": "",
