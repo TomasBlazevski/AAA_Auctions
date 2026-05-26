@@ -24,3 +24,6 @@ env/
 .DS_Store
 Thumbs.db
 scrapers/output/
+
+# Google API Credentials
+service_account.json
