@@ -61,6 +61,8 @@ def fetch_data_from_view(view_name):
         query = f"SELECT * FROM {view_name};"
         df = pd.read_sql_query(query, conn)
         conn.close()
+        
+        df = df.fillna("")  # Replace NaN with empty strings for better Google Sheets compatibility
 
         for col in df.select_dtypes(
             include=["datetime", "datetimetz", "object"]
