@@ -15,7 +15,7 @@ DB_SETTINGS = {
     "port": "5435"
 }
 
-DRIVE_FOLDER_ID = "https://drive.google.com/drive/folders/12t-z2GGLLuKF1TnT6O2kD-VA4ej6gsXa"  # Optional: specify a folder to place the sheet in
+DRIVE_FOLDER_ID = "12t-z2GGLLuKF1TnT6O2kD-VA4ej6gsXa" # Optional: specify a folder to place the sheet in
 CO_WORKER_EMAIL = "tomislavblazevski46@gmail.com" 
 
 GOOGLE_CREDS_FILE = "service_account.json" 
