@@ -1,34 +1,54 @@
 import datetime
+import os.path
 import gspread
 import pandas as pd
 import psycopg2
-from google.oauth2.service_account import Credentials
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google.oauth2.credentials import Credentials as UserCredentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 # ==========================================
 # 1. SYSTEM CONFIGURATIONS
 # ==========================================
 
-# Database settings matched exactly to your Docker .env file
 DB_SETTINGS = {
     "dbname": "a_auctions",
     "user": "Tomas",
     "password": "celtic46",
-    "host": "127.0.0.1",  # Explicitly forces IPv4 connection
-    "port": "5435",  # Docker host-mapped port
+    "host": "127.0.0.1",
+    "port": "5435",
 }
 
-# The target corporate email addresses to receive the report
-TARGET_EMAILS = [
-    "tomas.b@aaalease.net",
-    # "coworker@aaalease.net"  # <-- Uncomment and add your coworker's email here later if needed
-]
-
-# Google Sheets API Auth setup
+# The scopes required to access Google Sheets and Drive
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
 ]
-CREDS_FILE = "service_account.json"
+
+
+def get_user_authenticated_client():
+    """Authenticates using your actual user profile via browser login"""
+    creds = None
+    # The file token.json stores the user's access and refresh tokens
+    if os.path.exists("token.json"):
+        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+
+    # If there are no valid credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                "credentials.json", SCOPES
+            )
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run so you don't have to log in every time
+        with open("token.json", "w") as token:
+            token.write(creds.to_json())
+
+    return gspread.authorize(creds)
+
 
 # ==========================================
 # 2. CORE UTILITY FUNCTIONS
@@ -36,14 +56,12 @@ CREDS_FILE = "service_account.json"
 
 
 def fetch_data_from_view(view_name):
-    """Connects to Postgres and extracts view data into a DataFrame"""
     try:
         conn = psycopg2.connect(**DB_SETTINGS)
         query = f"SELECT * FROM {view_name};"
         df = pd.read_sql_query(query, conn)
         conn.close()
 
-        # FIXED: Added the missing 'in' keyword here 
         for col in df.select_dtypes(
             include=["datetime", "datetimetz", "object"]
         ).columns:
@@ -64,23 +82,20 @@ def export_and_share():
         print("Export aborted due to database errors.")
         return
 
-    print("Authenticating with Google Drive API...")
-    creds = Credentials.from_service_account_file(CREDS_FILE, scopes=SCOPES)
-    client = gspread.authorize(creds)
+    print("Authenticating with your Google Account...")
+    try:
+        client = get_user_authenticated_client()
+    except Exception as e:
+        print(f"Authentication failed: {e}")
+        return
 
-    # Generate a dynamic title based on today's date
     today_str = datetime.date.today().strftime("%Y-%m-%d")
     sheet_title = f"AAA Auctions Report ({today_str})"
 
     try:
         print(f"Creating new spreadsheet: '{sheet_title}'...")
-        # Create the file in the Service Account's baseline space to bypass corporate 404 block
+        # This will now safely create the file directly using YOUR corporate account storage
         spreadsheet = client.create(sheet_title)
-
-        # Loop through and share with everyone in TARGET_EMAILS as an Editor
-        for email in TARGET_EMAILS:
-            print(f"Sharing editing access with {email}...")
-            spreadsheet.share(email, perm_type="user", role="writer")
 
         # --- Populate Sheet 1: Auctions Next 7 Days ---
         print("Populating 'Next 7 Days' worksheet...")
@@ -103,15 +118,12 @@ def export_and_share():
 
         print("\n🎉 Success! The report has been compiled completely.")
         print(
-            "👉 Check your 'Shared with me' tab in Google Drive to view and organize the file!"
+            "👉 Look at your main Google Drive dashboard! The file is sitting right there."
         )
 
     except Exception as e:
         print(f"\n❌ Google Sheets API Process failed: {e}")
 
 
-# ==========================================
-# 3. EXECUTION RUNNER
-# ==========================================
 if __name__ == "__main__":
     export_and_share()
