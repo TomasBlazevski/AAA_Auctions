@@ -15,6 +15,7 @@ DB_SETTINGS = {
     "port": "5435"
 }
 
+DRIVE_FOLDER_ID = "https://drive.google.com/drive/folders/12t-z2GGLLuKF1TnT6O2kD-VA4ej6gsXa"  # Optional: specify a folder to place the sheet in
 CO_WORKER_EMAIL = "tomislavblazevski46@gmail.com" 
 
 GOOGLE_CREDS_FILE = "service_account.json" 
@@ -56,7 +57,7 @@ def export_and_share():
     sheet_title = f"AAA Auctions Report ({today_str})"
     
     print(f"Creating new spreadsheet: '{sheet_title}'...")
-    spreadsheet = client.create(sheet_title)
+    spreadsheet = client.create(sheet_title, folder_id=DRIVE_FOLDER_ID)
 
     # Tab 1: Next 7 Days
     sheet_7 = spreadsheet.get_worksheet(0)
