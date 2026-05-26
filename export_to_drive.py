@@ -94,40 +94,37 @@ def export_and_share():
         return
 
     today_str = datetime.date.today().strftime("%Y-%m-%d")
-    sheet_title = f"AAA Auctions Report ({today_str})"
-
+    # =========================================================
+    # CREATE FILE 1: NEXT 7 DAYS REPORT
+    # =========================================================
+    title_7_days = f"AAA Auctions - Next 7 Days ({today_str})"
     try:
-        print(f"Creating new spreadsheet: '{sheet_title}'...")
-        # This will now safely create the file directly using YOUR corporate account storage
-        spreadsheet = client.create(sheet_title)
-
-        # --- Populate Sheet 1: Auctions Next 7 Days ---
-        print("Populating 'Next 7 Days' worksheet...")
-        worksheet_7_days = spreadsheet.get_worksheet(0)
-        worksheet_7_days.update_title("Next 7 Days")
-        worksheet_7_days.update(
-            [df_7_days.columns.values.tolist()] + df_7_days.values.tolist()
-        )
-
-        # --- Populate Sheet 2: Auctions Today ---
-        print("Populating 'Auctions Today' worksheet...")
-        worksheet_today = spreadsheet.add_worksheet(
-            title="Auctions Today",
-            rows=str(len(df_today) + 50),
-            cols=str(len(df_today.columns)),
-        )
-        worksheet_today.update(
-            [df_today.columns.values.tolist()] + df_today.values.tolist()
-        )
-
-        print("\n🎉 Success! The report has been compiled completely.")
-        print(
-            "👉 Look at your main Google Drive dashboard! The file is sitting right there."
-        )
-
+        print(f"Creating file: '{title_7_days}'...")
+        sheet_7_days = client.create(title_7_days)
+        
+        worksheet = sheet_7_days.get_worksheet(0)
+        worksheet.update_title("Data")
+        worksheet.update([df_7_days.columns.values.tolist()] + df_7_days.values.tolist())
+        print(f"✅ '{title_7_days}' created successfully.")
     except Exception as e:
-        print(f"\n❌ Google Sheets API Process failed: {e}")
+        print(f"❌ Failed to create 7 Days report: {e}")
 
+    # =========================================================
+    # CREATE FILE 2: AUCTIONS TODAY REPORT
+    # =========================================================
+    title_today = f"AAA Auctions - Today ({today_str})"
+    try:
+        print(f"Creating file: '{title_today}'...")
+        sheet_today = client.create(title_today)
+        
+        worksheet = sheet_today.get_worksheet(0)
+        worksheet.update_title("Data")
+        worksheet.update([df_today.columns.values.tolist()] + df_today.values.tolist())
+        print(f"✅ '{title_today}' created successfully.")
+    except Exception as e:
+        print(f"❌ Failed to create Today report: {e}")
+
+    print("\n🎉 All separate reports compiled successfully in your Google Drive!")
 
 if __name__ == "__main__":
     export_and_share()
