@@ -12,7 +12,7 @@ DB_SETTINGS = {
     "user": "Tomas",
     "password": "celtic46",
     "host": "127.0.0.1",
-    "port": "5432"
+    "port": "5435"
 }
 
 CO_WORKER_EMAIL = "tomislavblazevski46@gmail.com" 
