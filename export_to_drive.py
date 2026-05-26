@@ -11,7 +11,7 @@ DB_SETTINGS = {
     "dbname": "a_auctions",
     "user": "Tomas",
     "password": "celtic46",
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": "5432"
 }
 
