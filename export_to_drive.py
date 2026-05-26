@@ -5,17 +5,19 @@ import pandas as pd
 import psycopg2
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from google.oauth2.credentials import Credentials as UserCredentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ==========================================
-# 1. SYSTEM CONFIGURATIONS
+# 1. SYSTEM CONFIGURATIONS (HIDDEN SECURELY)
 # ==========================================
 
 DB_SETTINGS = {
-    "dbname": "a_auctions",
-    "user": "Tomas",
-    "password": "celtic46",
+    "dbname": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
     "host": "127.0.0.1",
     "port": "5435",
 }

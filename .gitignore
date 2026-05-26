@@ -28,3 +28,4 @@ scrapers/output/
 # Google API Credentials
 service_account.json
 credentials.json
+token.json
