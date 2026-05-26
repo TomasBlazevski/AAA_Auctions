@@ -18,6 +18,7 @@ env/
 .idea/
 *.swp
 *.swo
+*.ipynb
 
 # OS related
 .DS_Store
