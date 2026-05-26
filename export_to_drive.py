@@ -9,8 +9,8 @@ from datetime import datetime
 # =====================================================================
 DB_SETTINGS = {
     "dbname": "a_auctions",
-    "user": "postgres",
-    "password": "jockstein",
+    "user": "Tomas",
+    "password": "celtic46",
     "host": "localhost",
     "port": "5432"
 }
