@@ -50,8 +50,8 @@ BEGIN
     WITH base_dates AS (
         SELECT d::date AS datum
         FROM generate_series(
-            '2000-01-01'::date, 
-            ('2000-01-01'::date + INTERVAL '30 years' - INTERVAL '1 day')::date, 
+            '2026-01-01'::date, 
+            ('2026-01-01'::date + INTERVAL '30 years' - INTERVAL '1 day')::date, 
             '1 day'::interval
         ) s(d)
     ),
