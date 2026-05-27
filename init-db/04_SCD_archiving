@@ -1,0 +1,18 @@
+BEGIN;
+
+INSERT INTO past_auctions (
+    auctioner, location, date, year, make, model, engine, hp, 
+    transmission, ratio, mileage, notes, repairs_cost, transport_costs, 
+    target_price, max_bidding_price, sold_for, details
+)
+SELECT 
+    Name_Of_Auction, Location, Date_of_A, Year, Make, Model, Engine, HP,
+    Transmission, Ratio, Mileage, Notes, RepairCosts, Transport_Costs,
+    Target_Price, Max_Bid, Sold_For, details
+FROM upcoming_auctions
+WHERE Date_of_A < CURRENT_DATE;
+
+DELETE FROM upcoming_auctions 
+WHERE Date_of_A < CURRENT_DATE;
+
+COMMIT;

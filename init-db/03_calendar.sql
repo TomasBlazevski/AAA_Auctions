@@ -33,7 +33,6 @@ CREATE TABLE date
     CONSTRAINT pk_date PRIMARY KEY (datekey)
 );
 
--- 2. Create the procedure right next to it
 CREATE OR REPLACE PROCEDURE generate_dimension_date()
 LANGUAGE plpgsql
 AS $$
