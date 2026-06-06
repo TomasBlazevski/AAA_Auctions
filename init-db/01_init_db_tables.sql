@@ -61,5 +61,6 @@ CREATE TABLE if not exists truck_paper_data (
 	Engine TEXT,
 	Transmission TEXT,
 	Price INTEGER,
-	URL TEXT
+	URL TEXT,
+    created_at DATE DEFAULT CURRENT_DATE
 );
