@@ -49,3 +49,17 @@ CREATE TABLE IF NOT EXISTS upcoming_auctions (
 	URL TEXT,
 	details JSONB
 );
+
+CREATE TABLE if not exists truck_paper_data (
+	id serial PRIMARY KEY,
+	Manufacturer TEXT,
+	Model VARCHAR(20),
+	Vin VARCHAR(17),
+	Year INTEGER,
+	Mileage INTEGER,
+	HP INTEGER,
+	Engine TEXT,
+	Transmission TEXT,
+	Price INTEGER,
+	URL TEXT
+);
