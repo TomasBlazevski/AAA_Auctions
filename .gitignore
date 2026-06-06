@@ -24,6 +24,7 @@ env/
 .DS_Store
 Thumbs.db
 scrapers/output/
+upgrading_tasks.txt
 
 # Google API Credentials
 service_account.json
