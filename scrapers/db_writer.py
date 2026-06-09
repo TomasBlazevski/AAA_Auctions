@@ -5,17 +5,12 @@ from decimal import Decimal, InvalidOperation
 import psycopg2
 from psycopg2.extras import Json, execute_values
 from dotenv import load_dotenv
-load_dotenv()
-from pathlib import Path  # For potential future use in file-based configs or logs
-from decimal import Decimal, InvalidOperation
-
 
 # Agnostic loading: 
 # This looks for a .env file in the folder where you RUN the command.
 load_dotenv()
 
 # --- DEBUG TEST ---
-# os.getenv() will now check your system variables OR the .env file
 db_user = os.getenv('DB_USER')
 
 if db_user:
@@ -199,7 +194,6 @@ def _normalize_row(row):
 
     repair_cost = _to_decimal(row.get("RepairCosts"))
     notes = row.get("Notes") or ""
-    
 
     return (
         row.get("Name_Of_Auction"),
@@ -244,6 +238,17 @@ def save_upcoming_auctions(rows):
     values = [_normalize_row(row) for row in rows]
     values_with_vin = [value for value in values if value[VIN_IDX] is not None]
     values_without_vin = [value for value in values if value[VIN_IDX] is None]
+
+    # 🛠️ PREVENT CARDINALITY ERROR: Keep only the newest duplicate row inside this batch array.
+    # Because we are processing oldest to newest, assigning keys sequentially to a dictionary
+    # ensures that if a duplicate VIN is found, the NEWEST record overwrites the old one.
+    if values_with_vin:
+        unique_vin_dict = {}
+        for val in values_with_vin:
+            vin_key = val[VIN_IDX]
+            unique_vin_dict[vin_key] = val # Fresh record forces the drop of the older internal clone
+        
+        values_with_vin = list(unique_vin_dict.values())
 
     with psycopg2.connect(
         host=db_host,
