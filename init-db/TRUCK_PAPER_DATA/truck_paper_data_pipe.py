@@ -144,7 +144,8 @@ if __name__ == "__main__":
     try:
         
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        csv_path = os.path.join(script_dir, "truck_paper_scraped_2.csv")        
+        filename = input("Enter the CSV filename: ")
+        csv_path = os.path.join(script_dir, filename)
         
         df_scraped = pd.read_csv(csv_path) 
         
