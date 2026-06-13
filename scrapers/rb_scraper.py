@@ -218,7 +218,7 @@ def main():
     output_file.parent.mkdir(parents=True, exist_ok=True)
     df_rb.to_csv(output_file, index=False)
     print(f"Data saved to {OUTPUT_PATH}")
-    save_upcoming_auctions(df_rb.to_dict(orient="records"))
+    save_upcoming_auctions(df_rb.to_dict(orient="records"), table_name="rb_trucks_specs")
 
 
 if __name__ == "__main__":

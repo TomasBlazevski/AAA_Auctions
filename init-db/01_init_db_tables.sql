@@ -64,3 +64,55 @@ CREATE TABLE if not exists truck_paper_data (
 	URL TEXT,
     created_at DATE DEFAULT CURRENT_DATE
 );
+
+CREATE TABLE IF NOT EXISTS tm_trucks_specs (
+	id SERIAL PRIMARY KEY,
+    Name_Of_Auction TEXT,
+    Location TEXT,
+    Date_of_A DATE,
+	Time_of_A Time,
+	Lot Int,
+	Vin VARCHAR(17) UNIQUE,
+    Year INTEGER,
+    Make VARCHAR(100),
+    Model VARCHAR(100),
+    Engine TEXT,
+    HP INTEGER,
+    Transmission TEXT,
+    Ratio DECIMAL(5, 2),
+    Mileage INTEGER,
+    Notes TEXT,
+    RepairCosts DECIMAL(12, 2) DEFAULT 0,
+    Transport_Costs DECIMAL(12, 2) DEFAULT 0,
+    Target_Price DECIMAL(12, 2),
+    Max_Bid DECIMAL(12, 2),
+    Sold_For DECIMAL(12, 2),
+	URL TEXT,
+	details JSONB
+);
+
+CREATE TABLE IF NOT EXISTS rb_trucks_specs (
+	id SERIAL PRIMARY KEY,
+    Name_Of_Auction TEXT,
+    Location TEXT,
+    Date_of_A DATE,
+	Time_of_A Time,
+	Lot Int,
+	Vin VARCHAR(17) UNIQUE,
+    Year INTEGER,
+    Make VARCHAR(100),
+    Model VARCHAR(100),
+    Engine TEXT,
+    HP INTEGER,
+    Transmission TEXT,
+    Ratio DECIMAL(5, 2),
+    Mileage INTEGER,
+    Notes TEXT,
+    RepairCosts DECIMAL(12, 2) DEFAULT 0,
+    Transport_Costs DECIMAL(12, 2) DEFAULT 0,
+    Target_Price DECIMAL(12, 2),
+    Max_Bid DECIMAL(12, 2),
+    Sold_For DECIMAL(12, 2),
+	URL TEXT,
+	details JSONB
+);
