@@ -9,6 +9,10 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from db_writer import save_upcoming_auctions
 
 
@@ -218,7 +222,7 @@ def main():
     output_file.parent.mkdir(parents=True, exist_ok=True)
     df_rb.to_csv(output_file, index=False)
     print(f"Data saved to {OUTPUT_PATH}")
-    save_upcoming_auctions(df_rb.to_dict(orient="records"), table_name="rb_trucks_specs")
+    save_upcoming_auctions(df_rb.to_dict(orient="records"), table="rb_trucks_specs")
 
 
 if __name__ == "__main__":
