@@ -161,7 +161,7 @@ def scrape_listings(
 
                 try:
                     driver.get(url)
-                    time.sleep(5)
+                    time.sleep(3)
                     html = driver.page_source
 
                     row, block_reason = _extract_listing(html, url)
@@ -199,11 +199,14 @@ def scrape_listings(
                     print(f"\nAuto-save: syncing {len(results)} items to disk...")
                     _save_results(results, csv_path, json_path)
 
-                time.sleep(random.uniform(3, 6))
+                time.sleep(random.uniform(1, 5))
         finally:
             print("Closing browser...")
-            driver.quit()
-            time.sleep(3)
+            try:
+                driver.close()
+                driver.quit()
+            except Exception:
+                pass
 
     _save_results(results, csv_path, json_path)
     print(f"\nFinished! Scraped {len(results)} listings.")
