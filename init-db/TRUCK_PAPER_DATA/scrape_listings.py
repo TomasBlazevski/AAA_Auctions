@@ -202,8 +202,7 @@ def scrape_listings(
                 time.sleep(random.uniform(1, 5))
         finally:
             print("Closing browser...")
-            try:
-                driver.close()
+            try:                
                 driver.quit()
             except Exception:
                 pass
