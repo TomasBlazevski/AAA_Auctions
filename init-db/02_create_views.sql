@@ -4,7 +4,7 @@
 CREATE OR REPLACE VIEW view_auctions_next_7_days AS
 SELECT 
     id, Name_Of_Auction, Location, Date_of_A, Time_of_A, Lot, Vin, 
-    Year, Make, Model, Engine, HP, Transmission, Mileage, Target_Price, URL
+    Year, Make, Model, Engine, HP, Mileage, URL
 FROM upcoming_auctions
 WHERE Date_of_A >= CURRENT_DATE 
   AND Date_of_A <= CURRENT_DATE + INTERVAL '7 days'
@@ -14,7 +14,7 @@ ORDER BY Date_of_A ASC, Time_of_A ASC;
 CREATE OR REPLACE VIEW view_auctions_today AS
 SELECT 
     id, Name_Of_Auction, Location, Date_of_A, Time_of_A, Lot, Vin, 
-    Year, Make, Model, Engine, HP, Transmission, Mileage, Target_Price, URL
+    Year, Make, Model, Engine, HP, Mileage, URL
 FROM upcoming_auctions
 WHERE Date_of_A = CURRENT_DATE
 ORDER BY Time_of_A ASC;
