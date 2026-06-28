@@ -36,16 +36,9 @@ CREATE TABLE IF NOT EXISTS upcoming_auctions (
     Make VARCHAR(100),
     Model VARCHAR(100),
     Engine TEXT,
-    HP INTEGER,
-    Transmission TEXT,
+    HP INTEGER,    
     Ratio DECIMAL(5, 2),
-    Mileage INTEGER,
-    Notes TEXT,
-    RepairCosts DECIMAL(12, 2) DEFAULT 0,
-    Transport_Costs DECIMAL(12, 2) DEFAULT 0,
-    Target_Price DECIMAL(12, 2),
-    Max_Bid DECIMAL(12, 2),
-    Sold_For DECIMAL(12, 2),
+    Mileage INTEGER,    
 	URL TEXT,
 	details JSONB
 );
