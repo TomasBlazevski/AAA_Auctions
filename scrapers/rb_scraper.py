@@ -4,11 +4,10 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
-
 import pandas as pd
-import requests
 from bs4 import BeautifulSoup
-
+from curl_cffi import requests as curl_requests
+import requests as standard_requests
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -52,21 +51,13 @@ def load_rb_config():
 
 def collect_links():
     cfg = load_rb_config()
-    base_url = cfg["base_url"]
+    base_url = 'https://www.rbauction.com/search'
     params = cfg["params"]
-
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/115.0.0.0 Safari/537.36"
-        ),
-        "Accept-Language": "en-US,en;q=0.9",
-    }
-
-    def fetch_page(from_param):
-        params["from"] = from_param
-        response = requests.get(base_url, params=params, headers=headers, timeout=20)
+    params['assetTypes'] = 'tandem-axle-sleeper-truck-tractor'
+    
+    def fetch_page(start_index):
+        params["from"] = start_index
+        response = curl_requests.get(base_url, params=params, impersonate="chrome", timeout=20)
         response.raise_for_status()
         return BeautifulSoup(response.text, "html.parser")
 
@@ -74,30 +65,39 @@ def collect_links():
     page = 0
 
     while True:
-        soup = fetch_page(page * 60)
-        links = []
-        for a in soup.find_all("a", href=True):
-            href = a["href"]
-            if "/pdp/" in href:
-                if not href.startswith("https://www.rbauction.com"):
-                    href = "https://www.rbauction.com" + href
-                links.append(href)
+        try:
+            soup = fetch_page(page * 60)
+            links = []
+            
+            for a in soup.find_all("a", href=True):
+                href = a["href"]
+                if "/pdp/" in href:
+                    if not href.startswith("https://www.rbauction.com"):
+                        href = "https://www.rbauction.com" + href
+                    links.append(href)
 
-        if not links:
+            if not links:
+                print("No more links found or reached the end. Stopping.")
+                break
+
+            all_links.update(links)
+            print(f"Page {page + 1}: collected {len(links)} links")
+            
+            page += 1
+            time.sleep(2)
+            
+        except Exception as e:
+            print(f"An error occurred on page {page + 1}: {e}")
             break
 
-        all_links.update(links)
-        print(f"Page {page + 1}: collected {len(links)} links")
-        page += 1
-        time.sleep(1)
-
     all_links = list(all_links)
-    print(f"Total collected links: {len(all_links)}")
-    return all_links, headers
+    print(f"Total collected links: {len(all_links)}")    
+    return all_links, {}
 
 
 def truck_data_v2(url, headers):
-    response = requests.get(url, headers=headers)
+    response = curl_requests.get(url, impersonate="chrome", timeout=20)
+    response.raise_for_status()
     soup = BeautifulSoup(response.text, "html.parser")
 
     script_tag = soup.find("script", id="__NEXT_DATA__")
