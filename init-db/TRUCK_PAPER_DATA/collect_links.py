@@ -16,7 +16,6 @@ DEFAULT_SEARCH_URL = (
     "&Engine=DETROIT%7CVOLVO&Sleeper=Raised%20Roof%20Sleeper&Country=178"
     "&Transmission=Automated%7CAutomatic"
 )
-DEFAULT_TOTAL_PAGES = 80
 DEFAULT_OUTPUT = SCRIPT_DIR / "truckpaper_all_links.json"
 CHROME_VERSION = 148
 
@@ -28,8 +27,7 @@ def _make_driver(chrome_version=CHROME_VERSION):
 
 
 def collect_links(
-    search_url=DEFAULT_SEARCH_URL,
-    total_pages=DEFAULT_TOTAL_PAGES,
+    search_url=DEFAULT_SEARCH_URL,   
     output_path=DEFAULT_OUTPUT,
     chrome_version=CHROME_VERSION,
 ):
@@ -38,36 +36,56 @@ def collect_links(
     wait = WebDriverWait(driver, 15)
 
     try:
-        for page_num in range(1, total_pages + 1):
+        page_num = 1
+        page_num = 1
+        while True:
             page_url = search_url if page_num == 1 else f"{search_url}&page={page_num}"
-            print(f"Fetching page {page_num}/{total_pages}: {page_url}")
+            print(f"Fetching page {page_num}: {page_url}")
 
             try:
                 driver.get(page_url)
-                wait.until(EC.presence_of_element_located((By.ID, "listContainer")))
+                wait.until(EC.presence_of_element_located((By.ID, "listContainer")))                
+                soup = BeautifulSoup(driver.page_source, "html.parser")
+                links_on_page = []
+                for anchor in soup.find_all("a", class_="view-listing-details-link"):
+                    href = anchor.get("href")
+                    if href:
+                        links_on_page.append("https://www.truckpaper.com" + href)
+                if not links_on_page:
+                    print(f"No listings found on page {page_num}. Successfully reached the end!")
+                    break
+
+                print(f"  Found {len(links_on_page)} listing URLs")
+                all_links.extend(links_on_page)
+                page_num += 1
+                time.sleep(3)
             except (UnexpectedAlertPresentException, TimeoutException):
-                print(
-                    f"  Page layout glitch or alert on page {page_num}. Refreshing..."
-                )
+                print(f"  Page layout glitch or alert on page {page_num}. Refreshing...")
                 time.sleep(2)
                 try:
                     driver.refresh()
                     time.sleep(3)
                     wait.until(EC.presence_of_element_located((By.ID, "listContainer")))
+                    
+                    soup = BeautifulSoup(driver.page_source, "html.parser")
+                    links_on_page = []
+                    for anchor in soup.find_all("a", class_="view-listing-details-link"):
+                        href = anchor.get("href")
+                        if href:
+                            links_on_page.append("https://www.truckpaper.com" + href)
+                    
+                    if not links_on_page:
+                        print(f"No listings found on page {page_num} after refresh. Stopping.")
+                        break
+                        
+                    print(f"  Found {len(links_on_page)} listing URLs")
+                    all_links.extend(links_on_page)
+                    page_num += 1
+                    time.sleep(3)
+                    
                 except Exception:
-                    print(f"  Failed to load page {page_num} after refresh. Skipping.")
-                    continue
-
-            soup = BeautifulSoup(driver.page_source, "html.parser")
-            links_on_page = []
-            for anchor in soup.find_all("a", class_="view-listing-details-link"):
-                href = anchor.get("href")
-                if href:
-                    links_on_page.append("https://www.truckpaper.com" + href)
-
-            print(f"  Found {len(links_on_page)} listing URLs")
-            all_links.extend(links_on_page)
-            time.sleep(2)
+                    print(f"  Failed to load page {page_num} completely. Stopping pagination to save progress.")
+                    break
     finally:
         driver.quit()
 
