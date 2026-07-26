@@ -17,27 +17,24 @@ DEFAULT_SEARCH_URL = (
     "&Transmission=Automated%7CAutomatic"
 )
 DEFAULT_OUTPUT = SCRIPT_DIR / "truckpaper_all_links.json"
-CHROME_VERSION = 148
+# CHROME_VERSION = 148
+CHROME_VERSION = 150
 
 
 def _make_driver(chrome_version=CHROME_VERSION):
     options = uc.ChromeOptions()
     options.set_capability("unhandledPromptBehavior", "dismiss")
-    return uc.Chrome(version_main=chrome_version, options=options)
+    if chrome_version:
+        return uc.Chrome(version_main=chrome_version, options=options)
+    return uc.Chrome(options=options)
 
 
-def collect_links(
-    search_url=DEFAULT_SEARCH_URL,   
-    output_path=DEFAULT_OUTPUT,
-    chrome_version=CHROME_VERSION,
-):
+def collect_links(search_url=DEFAULT_SEARCH_URL, output_path=DEFAULT_OUTPUT, chrome_version=CHROME_VERSION):
     all_links = []
-    driver = _make_driver(chrome_version)
-    wait = WebDriverWait(driver, 15)
-
-    try:
+    with _make_driver(chrome_version) as driver:
+        wait = WebDriverWait(driver, 15)       
         page_num = 1
-        page_num = 1
+            
         while True:
             page_url = search_url if page_num == 1 else f"{search_url}&page={page_num}"
             print(f"Fetching page {page_num}: {page_url}")
@@ -58,9 +55,10 @@ def collect_links(
                 print(f"  Found {len(links_on_page)} listing URLs")
                 all_links.extend(links_on_page)
                 page_num += 1
-                time.sleep(3)
+                time.sleep(3)                
             except (UnexpectedAlertPresentException, TimeoutException):
                 print(f"  Page layout glitch or alert on page {page_num}. Refreshing...")
+                driver.refresh()
                 time.sleep(2)
                 try:
                     driver.refresh()
@@ -85,9 +83,7 @@ def collect_links(
                     
                 except Exception:
                     print(f"  Failed to load page {page_num} completely. Stopping pagination to save progress.")
-                    break
-    finally:
-        driver.quit()
+                    break   
 
     unique_links = list(dict.fromkeys(all_links))
     output_path = Path(output_path)
