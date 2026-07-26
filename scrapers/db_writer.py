@@ -6,6 +6,7 @@ import psycopg2
 from psycopg2.extras import Json, execute_values
 from psycopg2 import sql
 from dotenv import load_dotenv
+from datetime import datetime, date
 
 load_dotenv()
 
@@ -16,7 +17,6 @@ if db_user:
 else:
     print("❌ Warning: DB_USER not found in environment.")
 
-# --- BASE SQL TEMPLATES (Table name is handled dynamically via {} and sql.Identifier) ---
 INSERT_TEMPLATE = """
 INSERT INTO {} (
     "name_of_auction", "location", "date_of_a", "time_of_a", "lot", "vin", 
@@ -70,6 +70,11 @@ INSERT INTO {} (
     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
 );
+"""
+
+DELETE_OLD_TEMPLATE = """
+DELETE FROM {}
+WHERE "date_of_a" >= %s
 """
 
 VIN_IDX = 5
@@ -141,10 +146,14 @@ def _normalize_row(row):
     )
 
 # --- MAIN EXPORT FUNCTION ---
-def save_upcoming_auctions(rows, table="upcoming_auctions"):
+def save_upcoming_auctions(rows, table="upcoming_auctions", delete_future=True):
     """
-    Saves scraped items dynamically to the specified table name.
-    Defaults to 'upcoming_auctions' if no table name is passed.
+    Saves scraped items to the specified table.
+
+    Args:
+        rows: list of dicts, each with keys like "Name_Of_Auction", "Date", etc.
+        table: name of the target PostgreSQL table.
+        delete_future: if True, delete all rows where date_of_a >= today before inserting.
     """
     if not rows:
         print(f"No rows to save to DB table: {table}.")
@@ -175,6 +184,12 @@ def save_upcoming_auctions(rows, table="upcoming_auctions"):
     ) as conn:
         with conn.cursor() as cur:
             
+            if delete_future:
+                delete_sql = sql.SQL(DELETE_OLD_TEMPLATE).format(sql.Identifier(table))
+                cur.execute(delete_sql, (date.today(),))
+                deleted = cur.rowcount
+                print(f"Deleted {deleted} record(s) with date_of_a >= {date.today()} from table '{table}'.")
+            
             # 1. Safe dynamic Table Name binding using psycopg2.sql
             final_insert_sql = sql.SQL(INSERT_TEMPLATE).format(sql.Identifier(table))
             final_update_sql = sql.SQL(UPDATE_BY_URL_TEMPLATE).format(sql.Identifier(table))
@@ -204,3 +219,16 @@ def save_upcoming_auctions(rows, table="upcoming_auctions"):
         conn.commit()
         
     print(f"Successfully saved {len(values)} row(s) to table: {table}.")
+    
+def save_from_dataframe(df, table="upcoming_auctions", delete_future=True):
+    """
+    Convert a pandas DataFrame to a list of dicts and call save_upcoming_auctions.
+
+    The DataFrame columns must match the expected keys:
+        Name_Of_Auction, Location, Date, Time, Lot, Vin, Year, Make, Model,
+        Engine, HP, Transmission, Ratio, Mileage, Notes, RepairCosts,
+        Transport_Costs, Target_Price, Max_Bid, Sold_For, URL, Details
+    (case-sensitive).
+    """
+    rows = df.to_dict(orient='records')
+    save_upcoming_auctions(rows, table=table, delete_future=delete_future)
