@@ -1,4 +1,5 @@
 import json
+from pickle import NONE
 import random
 import re
 import time
@@ -11,7 +12,7 @@ from bs4 import BeautifulSoup
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DEFAULT_LINKS_FILE = SCRIPT_DIR / "truckpaper_all_links.json"
-CHROME_VERSION = 148
+CHROME_VERSION = NONE
 MAX_SESSION_MINUTES = 30
 SAVE_INTERVAL = 100
 
@@ -140,7 +141,7 @@ def scrape_listings(
         session_start_time = time.time()
         print("\nInitializing Chrome process (30-minute session TTL)...")
 
-        driver = uc.Chrome(version_main=chrome_version)
+        driver = uc.Chrome()
         driver.maximize_window()
 
         try:
