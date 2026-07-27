@@ -109,3 +109,15 @@ CREATE TABLE IF NOT EXISTS rb_trucks_specs (
 	URL TEXT,
 	details JSONB
 );
+
+CREATE TABLE IF NOT EXISTS RB_add_info (
+    vin VARCHAR(17) PRIMARY KEY,
+    odometer TEXT,
+    engine_hours INT,
+	engine_hours_notes TEXT,
+    emissions_status TEXT,
+    limited_function_check TEXT,
+    deficiencies TEXT,
+	URL TEXT,
+    scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
